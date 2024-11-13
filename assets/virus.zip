@@ -1,0 +1,174 @@
+import java.util.*;
+
+class TimestampProtocol {
+    HashMap<String, Integer> readTimestamps = new HashMap<>();
+    HashMap<String, Integer> writeTimestamps = new HashMap<>();
+    int transactionTimestamp;
+
+    public TimestampProtocol(int timestamp) {
+        this.transactionTimestamp = timestamp;
+    }
+
+    public boolean read(String dataItem) {
+        if (transactionTimestamp >= getWriteTimestamp(dataItem)) {
+            readTimestamps.put(dataItem, transactionTimestamp);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean write(String dataItem) {
+        if (transactionTimestamp >= getReadTimestamp(dataItem) && transactionTimestamp >= getWriteTimestamp(dataItem)) {
+            writeTimestamps.put(dataItem, transactionTimestamp);
+            return true;
+        }
+        return false;
+    }
+
+    private int getReadTimestamp(String dataItem) {
+        return readTimestamps.getOrDefault(dataItem, 0);
+    }
+
+    private int getWriteTimestamp(String dataItem) {
+        return writeTimestamps.getOrDefault(dataItem, 0);
+    }
+
+    public static void main(String[] args) {
+        TimestampProtocol transaction1 = new TimestampProtocol(5);
+        System.out.println(transaction1.read("X"));
+        System.out.println(transaction1.write("X"));
+    }
+}
+
+// 1. Log-Based Protocol Using Deferred Database Modification
+
+class DeferredModification {
+    static List<String> log = new ArrayList<>();
+    static int databaseValue = 0;
+
+    public static void main(String[] args) {
+        beginTransaction();
+        update(10);
+        update(20);
+        commitTransaction();
+
+        System.out.println("Final Database Value: " + databaseValue);
+    }
+
+    static void beginTransaction() {
+        System.out.println("Transaction Started.");
+    }
+
+    static void update(int value) {
+        log.add("UPDATE: " + value);
+        System.out.println("Update staged: " + value);
+    }
+
+    static void commitTransaction() {
+        System.out.println("Committing Transaction...");
+        for (String entry : log) {
+            String[] parts = entry.split(": ");
+            databaseValue += Integer.parseInt(parts[1]);
+        }
+        log.clear();
+        System.out.println("Transaction Committed.");
+    }
+}
+
+// 2. Log-Based Protocol Using Immediate Database Modification
+
+class ImmediateModification {
+    static List<String> log = new ArrayList<>();
+    static int databaseValue = 0;
+
+    public static void main(String[] args) {
+        beginTransaction();
+        update(10);
+        update(20);
+        commitTransaction();
+
+        System.out.println("Final Database Value: " + databaseValue);
+    }
+
+    static void beginTransaction() {
+        System.out.println("Transaction Started.");
+    }
+
+    static void update(int value) {
+        log.add("UPDATE: " + value);
+        databaseValue += value;
+        System.out.println("Update applied immediately: " + value);
+    }
+
+    static void commitTransaction() {
+        System.out.println("Transaction Committed. Log entries cleared.");
+        log.clear();
+    }
+}
+
+// 3. Dynamic Hashing for Banking Database
+
+class BankingHashTable {
+    private HashMap<Integer, Double> dynamicTable = new HashMap<>();
+
+    public void addAccount(int accountId, double balance) {
+        dynamicTable.put(accountId, balance);
+        System.out.println("Account " + accountId + " added with balance: " + balance);
+    }
+
+    public void updateBalance(int accountId, double amount) {
+        if (dynamicTable.containsKey(accountId)) {
+            dynamicTable.put(accountId, dynamicTable.get(accountId) + amount);
+            System.out.println("Account " + accountId + " updated. New balance: " + dynamicTable.get(accountId));
+        } else {
+            System.out.println("Account " + accountId + " not found.");
+        }
+    }
+
+    public void displayAccounts() {
+        System.out.println("Account Details:");
+        for (Integer accountId : dynamicTable.keySet()) {
+            System.out.println("Account ID: " + accountId + ", Balance: " + dynamicTable.get(accountId));
+        }
+    }
+
+    public static void main(String[] args) {
+        BankingHashTable bankingDB = new BankingHashTable();
+        Scanner scanner = new Scanner(System.in);
+
+        while (true) {
+            System.out.println("\n1. Add Account");
+            System.out.println("2. Update Balance");
+            System.out.println("3. Display Accounts");
+            System.out.println("4. Exit");
+            System.out.print("Choose an option: ");
+            int choice = scanner.nextInt();
+
+            switch (choice) {
+                case 1:
+                    System.out.print("Enter Account ID: ");
+                    int accountId = scanner.nextInt();
+                    System.out.print("Enter Initial Balance: ");
+                    double balance = scanner.nextDouble();
+                    bankingDB.addAccount(accountId, balance);
+                    break;
+                case 2:
+                    System.out.print("Enter Account ID: ");
+                    accountId = scanner.nextInt();
+                    System.out.print("Enter Amount to Update (use negative for withdrawal): ");
+                    double amount = scanner.nextDouble();
+                    bankingDB.updateBalance(accountId, amount);
+                    break;
+                case 3:
+                    bankingDB.displayAccounts();
+                    break;
+                case 4:
+                    System.out.println("Exiting...");
+                    scanner.close();
+                    return;
+                default:
+                    System.out.println("Invalid option. Try again.");
+            }
+        }
+    }
+}
