@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Witarded CC</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Navbar -->
+  <header>
+    <nav>
+      <a href="https://witarded.github.io">Home</a>
+    </nav>
+  </header>
+
+  <div class="container">
+    <!-- Side Panel -->
+    <aside>
+      <ul>
+        <li><a href="#" onclick="showContent('assignment')">Assignment</a></li>
+        <li><a href="#" onclick="showContent('notes')">Notes</a></li>
+        <li><a href="#" onclick="showContent('question-bank')">Question Bank</a></li>
+      </ul>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main id="main-content">
+      <div id="assignment" class="content-section">
+        <h2>Assignment</h2>
+        <a href="https://github.com/your-repo/assignment.pdf" download>Download Assignment PDF</a>
+      </div>
+      <div id="notes" class="content-section" style="display:none;">
+        <h2>Notes</h2>
+        <a href="https://github.com/your-repo/notes.pdf" download>Download Notes PDF</a>
+      </div>
+      <div id="question-bank" class="content-section" style="display:none;">
+        <h2>Question Bank</h2>
+        <a href="https://github.com/your-repo/question-bank.pdf" download>Download Question Bank PDF</a>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    function showContent(section) {
+      const sections = document.querySelectorAll('.content-section');
+      sections.forEach(sec => sec.style.display = 'none');
+      document.getElementById(section).style.display = 'block';
+    }
+  </script>
+
+</body>
+</html>
